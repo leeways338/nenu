@@ -7,18 +7,49 @@ DIR_TMP="$(mktemp -d)"
 
 # Write NENU configuration
 cat << EOF > ${DIR_TMP}/heroku.json
-{
-    "inbounds": [{
-        "port": ${PORT},
-        "protocol": "vless",
-        "settings": {
-            "clients": [{
-                "id": "${ID}"
-            }],
-            "decryption": "none"
+{"inbounds": [
+        {
+            "port": 8080,
+            "protocol": "vless",
+            "settings": {
+                "clients": [
+                    {
+                        "id": "$UUID",
+                        "level": 0
+                    }
+                ],
+                "decryption": "none"
+            },
+            "streamSettings": {
+                "network": "ws",
+                "security": "none"
+            }
         }
-        }
-    }],
+        // {
+        //     "port": 8082,
+        //     "listen": "127.0.0.1",
+        //     "protocol": "vless",
+        //     "settings": {
+        //         "clients": [
+        //             {
+        //                 "id": "$UUID",
+        //                 "level": 0
+        //             }
+        //         ],
+        //         "decryption": "none"
+        //     },
+        //     "streamSettings": {
+        //         "security": "none",
+        //         "network": "h2",
+        //         "httpSettings": {
+        //             "path": "/h2",
+        //             "host": [
+        //                 "**.herokuapp.com"
+        //             ]
+        //         }
+        //     }
+        // }
+    ],
     "outbounds": [{
         "protocol": "freedom"
     }]
