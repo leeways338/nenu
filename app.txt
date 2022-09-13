@@ -1,0 +1,17 @@
+{
+    "name": "V2Ray",
+    "description": "Deploy V2ray VLESS on Heroku.",
+    "keywords": ["V2Ray"],
+    "env": {
+        "ID": {
+            "description": "UUID",
+            "value": "5beca3eb-433d-4b56-b2b2-1201538e16aa"
+        },
+        "WSPATH": {
+            "description": "WebSocket Path",
+            "value": "/"
+        }
+    },
+    "repository": "https://github.com/leeways338/nedu",
+    "stack": "container"
+}
