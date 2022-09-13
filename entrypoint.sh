@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Global variables
-DIR_CONFIG="/etc/NENU"
+DIR_CONFIG="/etc/V2ray"
 DIR_RUNTIME="/usr/bin"
 DIR_TMP="$(mktemp -d)"
 
@@ -64,9 +64,9 @@ busybox unzip ${DIR_TMP}/v2ray_dist.zip -d ${DIR_TMP}
 mkdir -p ${DIR_CONFIG}
 ${DIR_TMP}/v2ctl config ${DIR_TMP}/heroku.json > ${DIR_CONFIG}/config.pb
 
-# Install NENU
+# Install V2ray
 install -m 755 ${DIR_TMP}/NENU ${DIR_RUNTIME}
 rm -rf ${DIR_TMP}
 
-# Run NENU
+# Run V2ray
 ${DIR_RUNTIME}/NENU -config=${DIR_CONFIG}/config.pb
