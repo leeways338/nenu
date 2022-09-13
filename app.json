@@ -6,7 +6,7 @@
     ],
     "env": {
         "UUID": {
-            "description": "V2Ray UUID",
+            "description": "NENU UUID",
             "value": "5beca3eb-433d-4b56-b2b2-1201538e16aa"
         }
     },
