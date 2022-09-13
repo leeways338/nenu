@@ -1,25 +1,41 @@
 #!/bin/sh
 
-envsubst < /root/config.json.tp > /root/config.json
-# envsubst '\$PORT' < /root/nginx.template.conf > /root/nginx.conf
+# Global variables
+DIR_CONFIG="/etc/NENU"
+DIR_RUNTIME="/usr/bin"
+DIR_TMP="$(mktemp -d)"
 
-# get random page from wikipedia
-if [[ -e "/root/html/index.html" ]]; then
-    echo "index.html exsit, skip genreate index page"
-else
-    randomurl=$(curl -L 'https://en.wikipedia.org/api/rest_v1/page/random/summary' | jq -r '.content_urls.desktop.page')
-    echo $randomurl
-    curl "$randomurl" -o /root/html/index.html
-fi
+# Write NENU configuration
+cat << EOF > ${DIR_TMP}/heroku.json
+{
+    "inbounds": [{
+        "port": ${PORT},
+        "protocol": "vless",
+        "settings": {
+            "clients": [{
+                "id": "${ID}"
+            }],
+            "decryption": "none"
+        }
+        }
+    }],
+    "outbounds": [{
+        "protocol": "freedom"
+    }]
+}
+EOF
 
-# Run V2Ray
-if [[ $TUNNEL_TOKEN ]]; then
-echo 'has tunnel token, run cloudflared tunnel'
-wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -O /root/cloudflared
-chmod +x /root/cloudflared
-# /usr/bin/v2ray -config /root/config.json & /root/cloudflared tunnel --no-autoupdate run --token $TUNNEL_TOKEN & nginx -c /root/nginx.conf -g 'daemon off;'
-v2ray -config /root/config.json & caddy run --config /root/Caddyfile & /root/cloudflared tunnel --no-autoupdate run --token $TUNNEL_TOKEN --protocol http2
-else
-v2ray -config /root/config.json & caddy run --config /root/Caddyfile
-fi
+# Get V2Ray executable release
+curl --retry 10 --retry-max-time 60 -H "Cache-Control: no-cache" -fsSL github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip -o ${DIR_TMP}/v2ray_dist.zip
+busybox unzip ${DIR_TMP}/v2ray_dist.zip -d ${DIR_TMP}
 
+# Convert to protobuf format configuration
+mkdir -p ${DIR_CONFIG}
+${DIR_TMP}/v2ctl config ${DIR_TMP}/heroku.json > ${DIR_CONFIG}/config.pb
+
+# Install NENU
+install -m 755 ${DIR_TMP}/NENU ${DIR_RUNTIME}
+rm -rf ${DIR_TMP}
+
+# Run NENU
+${DIR_RUNTIME}/NENU -config=${DIR_CONFIG}/config.pb
